@@ -1,9 +1,12 @@
 package jp.co.guru.MyMine
 
-import org.scalatest.FunSuite
-import Status._
 import com.typesafe.scalalogging.slf4j.Logging
 import scala.util.Random
+import Util._
+
+/**
+ * 盤面の状態を示す
+ */
 
 class Status(val n: Int) extends AnyVal {
   override def toString() : String = {
@@ -12,29 +15,35 @@ class Status(val n: Int) extends AnyVal {
 }
 
 object Status {
-  def apply(n: Int) = {
-    new Status(n)
-  }
+  def apply(n: Int) = new Status(n)
   
   val EMPTY = Status(0)
   val BOMB = Status(9)
   val UNKNOWN = Status(-1)
 }
 
-trait BordBase {
-  protected val bord: Array[Array[Status]]
-  protected val width: Int
-  protected val height: Int
-}
+/**
+ * 盤面情報を持つ基底クラス
+ */
+trait BordBase extends MyRange {
+  val bord: Array[Array[Status]]
+  val width: Int
+  val height: Int
 
-trait Test extends Bord {
+  implicit class MySeq[POS](list: Seq[POS]) {
+    def count(f: (POS) => Boolean): Int = list.foldLeft(0)((x, y) => x + (if (f(y)) 1 else 0))
+  }
+
   def allCells(p: POS) = for(ox <- -1 to 1; oy <- -1 to 1) yield p + (ox, oy)
-  def count(p: POS) = allCells(p).count(isBomb(_)) 
+  def around(p: POS) = allCells(p).filter(_ != p)  
 }
 
 trait Manip extends Bord {
   val rnd = new Random
   
+  /**
+   * 1要素をランダムに取り除き 結果と取り除いた要素を返す
+   */
   implicit class MyIndexedSeq[A](val s: IndexedSeq[A]) {
     def randomRemove(): (A, IndexedSeq[A]) = {
       val p = rnd.nextInt(s.length)
@@ -46,7 +55,7 @@ trait Manip extends Bord {
   }
   
   /**
-   *   ランダムに爆弾を置く
+   *   ランダムに爆弾を置き置いた爆弾の位置を返す
    */  
   def randBomb(n: Int) = {
     val sl = spaceList
@@ -64,14 +73,12 @@ trait Manip extends Bord {
 }
 
 trait BordUI extends Bord with Logging {
-  def display() = {
-    bordAll(bord(_)(_)).map(_.mkString).mkString("\n")
-  }
+  def display() = bordAll(bord(_)(_)).map(_.mkString).mkString("\n")
 }
 
-class Bord(val width: Int, val height: Int)  extends MyRange with Logging {
+class Bord(val width: Int, val height: Int)  extends BordBase with Logging {
   
-  val bord = Array.fill(width, height)(EMPTY)
+  val bord = Array.fill(width, height)(Status.EMPTY)
   
   /**
    * ボードの全ますに関数を適用し List[List[?]]として返す
@@ -92,7 +99,7 @@ class Bord(val width: Int, val height: Int)  extends MyRange with Logging {
   /**
    * 指定された座標が爆弾であることを調べる
    */
-  def isBomb(p: POS): Boolean = isValidPos(p) && bord(p) == BOMB
+  def isBomb(p: POS): Boolean = isValidPos(p) && bord(p) == Status.BOMB
   
   /**
    * 空白のますの一覧を返す
@@ -104,7 +111,7 @@ class Bord(val width: Int, val height: Int)  extends MyRange with Logging {
    */
   def put(pos: POS): Unit = {
     assert(!isBomb(pos), "ここはイカン")
-    bord(pos) = BOMB
+    bord(pos) = Status.BOMB
   }
   
   /**

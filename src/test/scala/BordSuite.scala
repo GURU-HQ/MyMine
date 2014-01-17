@@ -14,28 +14,41 @@ class BordSuite extends FunSuite with Logging {
     h.randBomb(100)
   }
   
-  val b = new Bord(10, 10) with BordUI with Test with Manip
+  val b = new Bord(10, 10) with BordUI with Manip
   
   test("Test1") {
-    logger.info("\n" + b.display)
-    logger.info(b.spaceList.toString)
+    info("\n" + b.display)
+    info(b.spaceList.toString)
   }
   
   test("RandTest") {
     b.randBomb(30)
-    logger.info("\n" + b.display)
-    logger.info(b.spaceList.toString)
+    info("\n" + b.display)
+    info(b.spaceList.toString)
   }
   
   test("Splite Test") {
     b.randBomb(30)
     val s =new Splite(b)
-    logger.info("\n" + s.display)
+    info("\n" + s.display)
   }
   
   test("Splite Test2") {
     b.randBomb(30)
     val s =new Splite(b)
-    logger.info("\n" + s.display)
+    info("\n" + s.display)
+  }
+}
+
+class SpliteSuite extends FunSuite {
+  test("Update Test") {
+    val b = new Bord(10, 10) with BordUI with Manip
+    val s = new Splite(b)
+    (0 to 9).foreach(i => b.put(i, i))
+//    b.put(5, 5)
+    info("\n" + b.display)
+//    b.around(5, 5).foreach(tp => s.update(tp._1, tp._2))
+    s.paint(7, 1)
+    info("\n" + s.display)
   }
 }

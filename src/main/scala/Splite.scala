@@ -1,55 +1,44 @@
 package jp.co.guru.MyMine
 
-import org.scalatest.FunSuite
-import Status._
-
-trait MyRange {
-  type POS = (Int, Int)
-  implicit class MyTupple2(tp: POS) {
-    def +(other: POS) = (tp._1 + other._1, tp._2 + other._2)
-  }
-  
-  implicit class MyArray[A](ar: Array[Array[A]]) {
-    def apply(p: POS): A = ar(p._1)(p._2)
-    def update(p: POS, v: A): Unit = ar(p._1)(p._2) = v 
-  }
-  
-  implicit class MySeq[POS](list: Seq[POS]) {
-    def count(f: (POS) => Boolean): Int = list.foldLeft(0)((x, y) => x + (if (f(y)) 1 else 0))
-  }
-
-  
-  val width: Int
-  val height: Int
-  lazy val xrange = (0 to width - 1)
-  lazy val yrange = (0 to height - 1)
-  val isValidPos: ((POS) => Boolean) = p => xrange.contains(p._1) && yrange.contains(p._2)
-  def around(p: POS) = for (ox <- -1 to 1; oy <- -1 to 1 if (ox != 0 || oy != 0)) yield (p + (ox, oy))  
-}
+import Util._
 
 class Splite(val bord: Bord) extends MyRange {
   val width = bord.width
   val height = bord.height
   
-  val mask = Array.fill(width, height)(UNKNOWN)
+  val mask = Array.fill(width, height)(Status.UNKNOWN)
+  
   def display() = {
     (0 to bord.height - 1).map(y =>
       mask(y).collect({
-        case UNKNOWN => '?'
+        case Status.UNKNOWN => '?'
         case x if x == Status(0) => ' '
         case x => x.toString.charAt(0)
       }).mkString(" ")
     ).mkString("\n")
   }
 
-//  def isUnknown(x: Int, y: Int): Boolean = mask(x)(y) == UNKNOWN
-  def isUnknown(p: POS): Boolean = mask(p) == UNKNOWN
-  def put(p: POS, c: Int) = mask(p) = new Status(c)
-  def LRUD = List((-1, 0), (1, 0), (0, -1), (0, 1))
+  /**
+   * 指定された位置が未知の状態ならtrue
+   */
+  def isUnknown(p: POS): Boolean = mask(p) == Status.UNKNOWN
+  
+  
+  private def put(p: POS, c: Int) = mask(p) = new Status(c)
+ 
+  /**
+   * 上下左右のマスの内、操作可能なものを返す
+   */
   def probe(p: POS) = LRUD.map(p + _).filter(isValidPos(_))
-
+  
+  /**
+   * 指定された位置のマスを開きmaskを更新
+   */
   def update(p: POS) = put(p, bord.countAroundBomb(p))    
   
+  /**
+   * 指定された位置のマスを開きmaskを更新
+   */
   def open(p: POS) = {
     if (isUnknown(p)) {
       update(p)
@@ -58,15 +47,13 @@ class Splite(val bord: Bord) extends MyRange {
     }
   }
   
-  def isSpace() {
-    
-  }
-  
+  /**
+   * 指定された位置から連続して開く
+   */
   def paint(p: POS): Boolean = {
-//    assert()
-    if (bord.isBomb(p)) {
-      false
-    } else if (bord.countAroundBomb(p) > 0) {
+    assert(!bord.isBomb(p), "コードから爆弾が開かれた")
+    
+    if (bord.countAroundBomb(p) > 0) {
       update(p)
       true
     } else {
@@ -74,18 +61,5 @@ class Splite(val bord: Bord) extends MyRange {
       probe(p).filter(isUnknown(_)).foreach(paint(_))
       true
     }
-  }
-}
-
-class SpliteSuite extends FunSuite {
-  test("Update Test") {
-    val b = new Bord(10, 10) with BordUI with Test with Manip
-    val s = new Splite(b)
-    (0 to 9).foreach(i => b.put(i, i))
-//    b.put(5, 5)
-    info("\n" + b.display)
-//    b.around(5, 5).foreach(tp => s.update(tp._1, tp._2))
-    s.paint(7, 1)
-    info("\n" + s.display)
   }
 }
