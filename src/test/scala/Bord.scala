@@ -28,28 +28,14 @@ trait BordBase {
 }
 
 trait Test extends Bord {
- 
-  def count(x: Int, y: Int) = {
-    (for(ox <- -1 to 1; oy <- -1 to 1 if isBomb(x + ox, y + oy)) yield 1).size 
-  }
-
-  def a() = {
-    bordAll((x, y) => x + y) 
-  }
-  
-  def counts() = {
-    bordAll((x, y) => count(x, y)) 
-  }
-
-  def displayCounts() = {
-    
-  }
+  def allCells(p: POS) = for(ox <- -1 to 1; oy <- -1 to 1) yield p + (ox, oy)
+  def count(p: POS) = allCells(p).count(isBomb(_)) 
 }
 
 trait Manip extends Bord {
   val rnd = new Random
   
-  implicit class MyIndexedSeq[A](s: IndexedSeq[A]) {
+  implicit class MyIndexedSeq[A](val s: IndexedSeq[A]) {
     def randomRemove(): (A, IndexedSeq[A]) = {
       val p = rnd.nextInt(s.length)
       val sp = s.splitAt(p)
@@ -83,11 +69,9 @@ trait BordUI extends Bord with Logging {
   }
 }
 
-class Bord(val width: Int, val height: Int) extends Logging {
-  type POS = (Int, Int)
+class Bord(val width: Int, val height: Int)  extends MyRange with Logging {
   
   val bord = Array.fill(width, height)(EMPTY)
-  def around(x: Int, y: Int) = for (ox <- -1 to 1; oy <- -1 to 1 if (ox != 0 || oy != 0)) yield (x + ox, y + oy)  
   
   /**
    * ボードの全ますに関数を適用し List[List[?]]として返す
@@ -100,50 +84,37 @@ class Bord(val width: Int, val height: Int) extends Logging {
     )
   }
   
-  def bordAll(): IndexedSeq[IndexedSeq[(Int, Int)]] = {
-    bordAll((x, y) => (x, y))
-  }
+  /**
+   * ボードの全ますに関数を適用し List[List[?]]として返す
+   */
+  def bordAll(): IndexedSeq[IndexedSeq[POS]] = bordAll((x, y) => (x, y))
 
   /**
    * 指定された座標が爆弾であることを調べる
    */
-  def isBomb(x: Int, y: Int): Boolean = {
-    if (x < 0 || x >= bord.length || y < 0 || y >= bord.length) false
-    else bord(x)(y) == BOMB
-  }
-
-  def isBomb(tp: POS): Boolean = {
-    isBomb(tp._1, tp._2)
-  }
-
+  def isBomb(p: POS): Boolean = isValidPos(p) && bord(p) == BOMB
+  
   /**
    * 空白のますの一覧を返す
-   * 
    */
-  def spaceList() = {
-    bordAll().flatten.filter(tp => !isBomb(tp._1, tp._2))
-  }
+  def spaceList() = bordAll().flatten.filter(tp => !isBomb(tp))
   
   /**
    * 爆弾を置く
    */
   def put(pos: POS): Unit = {
-    assert(isBomb(pos), "ここはイカン")
-    bord(pos._1)(pos._2) = BOMB
+    assert(!isBomb(pos), "ここはイカン")
+    bord(pos) = BOMB
   }
   
   /**
    * 爆弾を置きまくる
    */
-  def put(bobms: Seq[POS]): Unit = {
-    bobms.foreach(p => put(p))
-  }
+  def put(bombs: Seq[POS]): Unit = bombs.foreach(p => put(p))
   
   /**
    * 周りの爆弾の個数を数える
    */
-  def countBomb(x: Int, y: Int) = {
-    around(x, y).foldLeft(0)((x, tp) => { logger.info(tp + " " + isBomb(tp).toString); x + (if (isBomb(tp)) 1 else 0) })
-  }
+  def countAroundBomb(p: POS): Int = around(p).count(isBomb(_))
 }
 
