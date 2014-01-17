@@ -1,0 +1,18 @@
+<classpath>
+  <classpathentry kind="src" path="src\main\scala" output="target\scala-2.10\classes"/>
+  <classpathentry kind="src" path="src\main\java" output="target\scala-2.10\classes"/>
+  <classpathentry kind="src" path="src\main\resources" output="target\scala-2.10\classes"/>
+  <classpathentry kind="src" path="src\test\scala" output="target\scala-2.10\test-classes"/>
+  <classpathentry kind="src" path="src\test\java" output="target\scala-2.10\test-classes"/>
+  <classpathentry kind="src" path="src\test\resources" output="target\scala-2.10\test-classes"/>
+  <classpathentry sourcepath="C:\Users\watanabe\.ivy2\cache\org.scala-lang\scala-library\srcs\scala-library-2.10.3-sources.jar" kind="lib" path="C:\Users\watanabe\.ivy2\cache\org.scala-lang\scala-library\jars\scala-library-2.10.3.jar"/>
+  <classpathentry sourcepath="C:\Users\watanabe\.ivy2\cache\com.typesafe\scalalogging-slf4j_2.10\srcs\scalalogging-slf4j_2.10-1.0.1-sources.jar" kind="lib" path="C:\Users\watanabe\.ivy2\cache\com.typesafe\scalalogging-slf4j_2.10\jars\scalalogging-slf4j_2.10-1.0.1.jar"/>
+  <classpathentry sourcepath="C:\Users\watanabe\.ivy2\cache\org.scala-lang\scala-reflect\srcs\scala-reflect-2.10.0-sources.jar" kind="lib" path="C:\Users\watanabe\.ivy2\cache\org.scala-lang\scala-reflect\jars\scala-reflect-2.10.0.jar"/>
+  <classpathentry sourcepath="C:\Users\watanabe\.ivy2\cache\org.slf4j\slf4j-api\srcs\slf4j-api-1.7.2-sources.jar" kind="lib" path="C:\Users\watanabe\.ivy2\cache\org.slf4j\slf4j-api\jars\slf4j-api-1.7.2.jar"/>
+  <classpathentry sourcepath="C:\Users\watanabe\.ivy2\cache\ch.qos.logback\logback-classic\srcs\logback-classic-1.0.13-sources.jar" kind="lib" path="C:\Users\watanabe\.ivy2\cache\ch.qos.logback\logback-classic\jars\logback-classic-1.0.13.jar"/>
+  <classpathentry sourcepath="C:\Users\watanabe\.ivy2\cache\ch.qos.logback\logback-core\srcs\logback-core-1.0.13-sources.jar" kind="lib" path="C:\Users\watanabe\.ivy2\cache\ch.qos.logback\logback-core\jars\logback-core-1.0.13.jar"/>
+  <classpathentry sourcepath="C:\Users\watanabe\.ivy2\cache\org.slf4j\slf4j-api\srcs\slf4j-api-1.7.5-sources.jar" kind="lib" path="C:\Users\watanabe\.ivy2\cache\org.slf4j\slf4j-api\jars\slf4j-api-1.7.5.jar"/>
+  <classpathentry sourcepath="C:\Users\watanabe\.ivy2\cache\org.scalatest\scalatest_2.10\srcs\scalatest_2.10-2.0-sources.jar" kind="lib" path="C:\Users\watanabe\.ivy2\cache\org.scalatest\scalatest_2.10\jars\scalatest_2.10-2.0.jar"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  <classpathentry kind="output" path="bin"/>
+</classpath>
