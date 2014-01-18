@@ -1,85 +1,85 @@
 package jp.co.guru.MyMine
 
-import org.scalatest.FunSuite
-import java.awt.{Component => _, _ }
+import com.typesafe.scalalogging.slf4j.Logging
+import java.awt.{ Component => _, Frame => _, _ }
 import scala.swing._
-import java.awt.event.PaintEvent
+import org.scalatest.FunSuite
+import scala.swing.event.MouseClicked
 
 /**
  * がわ
  */
-class F extends scala.swing.Frame {
+class F(model: Model) extends Frame {
   title = "Frame test"
-    
+
   contents = new FlowPanel {
-    contents += new C()
+    contents += new C(model, MyRenderer)
   }
-  
+
   override def closeOperation() = dispose()
 }
 
 /**
  * 盤面表示
  */
-class C extends Component {
+class C(model: Model, renderer: CellRenderer) extends Component with Logging {
   peer.setPreferredSize(new Dimension(640, 480))
-
-  def getModel(): Model = TestModel
+  val xs = model.getX
+  val ys = model.getY
+  //logger.info(model.toString)
   
-  implicit class MyGraphics2D(g: Graphics2D) {
-    def drawCenteredString(s: String, x: Int, y: Int, w: Int, h: Int) = {
-          val fm = g.getFontMetrics()
-    	  val b = fm.getStringBounds(s, g)
-    	  val l = fm.getLineMetrics(s, g)
-    	  g.drawString(s, x + (w - b.getWidth().toInt) / 2, 
-    	      (y + (h - b.getHeight()) / 2 + l.getAscent()).toInt)
-    }   
+  def calcPPT(r: Dimension): Int = {
+    (Math.min(r.width / xs, r.height / ys) * .9).toInt
+  }
+  
+  listenTo(this.mouse.clicks)
+  reactions += {
+     case MouseClicked(source, point, modifiers, clicks, triggersPopup) =>
+       val ppt = calcPPT(this.size)
+       val x = (point.x / ppt) % xs 
+       val y = (point.y / ppt) % ys
+       
+       println(point, modifiers, clicks)
   }
   
   override protected def paintComponent(g: Graphics2D) {
+    val ppt =  calcPPT(g.getClipBounds().getSize())
+
     g.setColor(Color.RED)
-    g.drawLine(10, 10, 100, 100)
-    val clipRect = g.getClipBounds()
     
-    val model = getModel()
-    val xs = model.getX
-    val ys = model.getY
-    val ppt = (Math.min(clipRect.width / xs, clipRect.height / ys) * .9).toInt
-    
-    
-    for (x <- 0 to xs - 1; y <- 0 to ys) {
-    	val v = model.getValue(x, y)
-    	putRect(v, x * ppt, y * ppt, ppt - 1, ppt - 1)
-    	
-  	    def putRect(v: Status, x: Int, y: Int, w: Int, h: Int) = {
-    	  val s = v.toString
-    	  g.drawRect(x, y, w, h)
-    	  g.drawCenteredString(s, x, y, w, h)
-    	}
+    for (x <- 0 to xs - 1; y <- 0 to ys - 1) {
+      val v = model.getValue(x, y)
+      renderer.putCell(g, v, x * ppt, y * ppt, ppt - 1, ppt - 1)
     }
   }
-}    
-
-/**
- * データモデルインターフェイス
- */
-trait Model {
-  def getX(): Int
-  def getY(): Int
-  def getValue(x: Int, y: Int): Status
+  
 }
 
+
 object TestModel extends Model {
-  def getX() = 10 
-  def getY() = 10 
+  def getX() = 10
+  def getY() = 10
   def getValue(x: Int, y: Int): Status = {
     return Status(x * y % 10)
-  }  
+  }
 }
 
 class SwingSuite extends FunSuite {
   test("Frame") {
-	val f = new F()
-	f.visible = true
+    val f = new F(TestModel)
+    f.visible = true
+  }
+  
+  test("Swing Bord") {
+    val b = new Bord(10, 10) with BordUI with Manip
+    val s = new Splite(b)
+    val f = new F(s)
+    (0 to 9).foreach(i => b.put(i, i))
+//    b.put(5, 5)
+    info("\n" + b.display)
+//    b.around(5, 5).foreach(tp => s.update(tp._1, tp._2))
+    s.paint(7, 1)
+    info("\n" + s.display)
+    f.visible = true
   }
 }

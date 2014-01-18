@@ -31,6 +31,9 @@ trait BordBase extends MyRange {
   val height: Int
 
   implicit class MySeq[POS](list: Seq[POS]) {
+    /**
+     * POSに対して
+     */
     def count(f: (POS) => Boolean): Int = list.foldLeft(0)((x, y) => x + (if (f(y)) 1 else 0))
   }
 
@@ -92,7 +95,7 @@ class Bord(val width: Int, val height: Int)  extends BordBase with Logging {
   }
   
   /**
-   * ボードの全ますに関数を適用し List[List[?]]として返す
+   * ボードの全ますを List[List[?]]として返す
    */
   def bordAll(): IndexedSeq[IndexedSeq[POS]] = bordAll((x, y) => (x, y))
 

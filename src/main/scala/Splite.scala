@@ -2,7 +2,7 @@ package jp.co.guru.MyMine
 
 import Util._
 
-class Splite(val bord: Bord) extends MyRange {
+class Splite(val bord: Bord) extends Model with MyRange {
   val width = bord.width
   val height = bord.height
   
@@ -18,6 +18,10 @@ class Splite(val bord: Bord) extends MyRange {
     ).mkString("\n")
   }
 
+  def getX() = width
+  def getY() = height
+  def getValue(x: Int, y: Int) = mask(x)(y)
+  
   /**
    * 指定された位置が未知の状態ならtrue
    */
@@ -35,17 +39,6 @@ class Splite(val bord: Bord) extends MyRange {
    * 指定された位置のマスを開きmaskを更新
    */
   def update(p: POS) = put(p, bord.countAroundBomb(p))    
-  
-  /**
-   * 指定された位置のマスを開きmaskを更新
-   */
-  def open(p: POS) = {
-    if (isUnknown(p)) {
-      update(p)
-    } else {
-      assert(false, "Already open")
-    }
-  }
   
   /**
    * 指定された位置から連続して開く
