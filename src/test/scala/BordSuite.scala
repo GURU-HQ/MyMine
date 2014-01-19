@@ -29,13 +29,13 @@ class BordSuite extends FunSuite with Logging {
   
   test("Splite Test") {
     b.randBomb(30)
-    val s =new Splite(b)
+    val s =new Splite(b) with DispSplite
     info("\n" + s.display)
   }
   
   test("Splite Test2") {
     b.randBomb(30)
-    val s =new Splite(b)
+    val s =new Splite(b) with DispSplite
     info("\n" + s.display)
   }
 }
@@ -43,7 +43,7 @@ class BordSuite extends FunSuite with Logging {
 class SpliteSuite extends FunSuite {
   test("Update Test") {
     val b = new Bord(10, 10) with BordUI with Manip
-    val s = new Splite(b)
+    val s = new Splite(b)  with DispSplite
     (0 to 9).foreach(i => b.put(i, i))
 //    b.put(5, 5)
     info("\n" + b.display)

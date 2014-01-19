@@ -1,6 +1,8 @@
 package jp.co.guru.MyMine
 
 import java.awt.Graphics2D
+import java.awt.Color
+import Util._
 
 trait CellRenderer {
   def putCell(g: Graphics2D, v: Status, x: Int, y: Int, w: Int, h: Int)  
@@ -24,7 +26,13 @@ object MyRenderer extends CellRenderer {
   }
   
   override def putCell(g: Graphics2D, v: Status, x: Int, y: Int, w: Int, h: Int) = {
+    
     val s = v.toString
+    if (v == Status.UNKNOWN || v == Status.FLAG) {
+      g.setColor(Color.BLACK)
+      g.fillRect(x, y, w, h)
+    }
+    g.setColor(Color.RED)
     g.drawRect(x, y, w, h)
     g.drawCenteredString(s, x, y, w, h)
   }

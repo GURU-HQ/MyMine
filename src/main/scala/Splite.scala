@@ -1,44 +1,75 @@
 package jp.co.guru.MyMine
 
 import Util._
+import com.typesafe.scalalogging.slf4j.Logging
 
-class Splite(val bord: Bord) extends Model with MyRange {
+
+/**
+ * ユーザーから見た盤面を保持する
+ * （チームで共有すべき状態）
+ */
+class Splite(val bord: Bord) extends Model with MyRange with Logging {
   val width = bord.width
   val height = bord.height
   
   val mask = Array.fill(width, height)(Status.UNKNOWN)
   
-  def display() = {
-    (0 to bord.height - 1).map(y =>
-      mask(y).collect({
-        case Status.UNKNOWN => '?'
-        case x if x == Status(0) => ' '
-        case x => x.toString.charAt(0)
-      }).mkString(" ")
-    ).mkString("\n")
+  override def getX() = width
+  override def getY() = height
+  override def getValue(x: Int, y: Int): Status = mask(x)(y)
+  
+  /**
+   * クリックされた時の処理
+   * この辺りから Actorベースにしていく
+   */
+  override def open(p: POS): Boolean = {
+    if (bord.isBomb(p)) {
+      logger.error("BOMB")
+      false
+    } else {
+      paint(p)
+      true
+    }
+  }
+  
+  /**
+   * 右クリックされた時の処理
+   * 旗を立てる
+   */
+  override def flag(p: POS): Boolean = {
+    if (!bord.isBomb(p)) {
+      logger.error("Not BOMB")
+      false
+    } else {
+      put(p, Status.FLAG)
+      true
+    }
   }
 
-  def getX() = width
-  def getY() = height
-  def getValue(x: Int, y: Int) = mask(x)(y)
+  /**
+   * 周囲のますの内、旗が立っているますの数
+   */
+  def countFlag(p: POS): Int = probe(p).size // うそ
   
   /**
    * 指定された位置が未知の状態ならtrue
    */
-  def isUnknown(p: POS): Boolean = mask(p) == Status.UNKNOWN
+  private def isUnknown(p: POS): Boolean = mask(p) == Status.UNKNOWN
   
-  
-  private def put(p: POS, c: Int) = mask(p) = new Status(c)
+  /**
+   * 指定された位置の状態を変更
+   */
+  private def put(p: POS, c: Status) = mask(p) = c
  
   /**
-   * 上下左右のマスの内、操作可能なものを返す
+   * 周りのマスの内、操作可能なものを返す
    */
-  def probe(p: POS) = LRUD.map(p + _).filter(isValidPos(_))
+  private def probe(p: POS) = around(p).filter(isValidPos(_))
   
   /**
    * 指定された位置のマスを開きmaskを更新
    */
-  def update(p: POS) = put(p, bord.countAroundBomb(p))    
+  private def update(p: POS) = put(p, new Status(bord.countAroundBomb(p)))    
   
   /**
    * 指定された位置から連続して開く
@@ -51,6 +82,7 @@ class Splite(val bord: Bord) extends Model with MyRange {
       true
     } else {
       update(p)
+//      probe(p).filter(isUnknown(_)).foreach(paint(_))
       probe(p).filter(isUnknown(_)).foreach(paint(_))
       true
     }

@@ -5,24 +5,6 @@ import scala.util.Random
 import Util._
 
 /**
- * 盤面の状態を示す
- */
-
-class Status(val n: Int) extends AnyVal {
-  override def toString() : String = {
-    n.toString + " "
-  }
-}
-
-object Status {
-  def apply(n: Int) = new Status(n)
-  
-  val EMPTY = Status(0)
-  val BOMB = Status(9)
-  val UNKNOWN = Status(-1)
-}
-
-/**
  * 盤面情報を持つ基底クラス
  */
 trait BordBase extends MyRange {
@@ -36,11 +18,12 @@ trait BordBase extends MyRange {
      */
     def count(f: (POS) => Boolean): Int = list.foldLeft(0)((x, y) => x + (if (f(y)) 1 else 0))
   }
-
-  def allCells(p: POS) = for(ox <- -1 to 1; oy <- -1 to 1) yield p + (ox, oy)
-  def around(p: POS) = allCells(p).filter(_ != p)  
 }
 
+/**
+ * 神用Trait 
+ * (下僕の民はこれを使えない)
+ */
 trait Manip extends Bord {
   val rnd = new Random
   
@@ -75,10 +58,9 @@ trait Manip extends Bord {
   }
 }
 
-trait BordUI extends Bord with Logging {
-  def display() = bordAll(bord(_)(_)).map(_.mkString).mkString("\n")
-}
-
+/**
+ * 下僕の民が使うクラス
+ */
 class Bord(val width: Int, val height: Int)  extends BordBase with Logging {
   
   val bord = Array.fill(width, height)(Status.EMPTY)
