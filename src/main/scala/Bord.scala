@@ -11,13 +11,6 @@ trait BordBase extends MyRange {
   val bord: Array[Array[Status]]
   val width: Int
   val height: Int
-
-  implicit class MySeq[POS](list: Seq[POS]) {
-    /**
-     * POSに対して
-     */
-    def count(f: (POS) => Boolean): Int = list.foldLeft(0)((x, y) => x + (if (f(y)) 1 else 0))
-  }
 }
 
 /**

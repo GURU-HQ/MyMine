@@ -7,6 +7,10 @@ class Status(val n: Int) extends AnyVal {
   override def toString(): String = {
     n.toString + " "
   }
+  
+  def is(other: Int): Boolean = {
+    n == other
+  }
 }
 
 object Status {

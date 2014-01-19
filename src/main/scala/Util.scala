@@ -7,7 +7,6 @@ object Util {
    */
   type POS = (Int, Int)
 
-  
   /**
    * POS同士の加算 (POS + OFFSETに書き直す必要がある)
    */
@@ -16,9 +15,19 @@ object Util {
   }
 
   /**
+   * POSのSeqのユーティリティー
+   */
+  implicit class MySeq[POS](list: Seq[POS]) {
+    /**
+     * POSに対して 与えた関数が 真となるますの数を返す
+     */
+    def count(f: (POS) => Boolean): Int = list.foldLeft(0)((x, y) => x + (if (f(y)) 1 else 0))
+  }
+
+  implicit class MyArray[A](ar: Array[Array[A]]) {
+  /**
    *   2次元のArrayをPOSでアクセス出来るようにしておく
    */  
-  implicit class MyArray[A](ar: Array[Array[A]]) {
     def apply(p: POS): A = ar(p._1)(p._2)
     def update(p: POS, v: A): Unit = ar(p._1)(p._2) = v
   }

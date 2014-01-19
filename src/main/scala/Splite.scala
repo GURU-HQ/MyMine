@@ -3,7 +3,6 @@ package jp.co.guru.MyMine
 import Util._
 import com.typesafe.scalalogging.slf4j.Logging
 
-
 /**
  * ユーザーから見た盤面を保持する
  * （チームで共有すべき状態）
@@ -26,9 +25,14 @@ class Splite(val bord: Bord) extends Model with MyRange with Logging {
     if (bord.isBomb(p)) {
       logger.error("BOMB")
       false
-    } else {
+    } else if (isUnknown(p)) {
       paint(p)
       true
+    } else if (mask(p).is(countFlag(p))) {
+      probe(p).filter(isUnknown(_)).foreach(paint(_))
+      true
+    } else {
+      false
     }
   }
   
@@ -47,9 +51,14 @@ class Splite(val bord: Bord) extends Model with MyRange with Logging {
   }
 
   /**
+   * 指定されたますが旗であることを調べる
+   */
+  def isFlag(p: POS): Boolean = isValidPos(p) && mask(p) == Status.FLAG
+
+  /**
    * 周囲のますの内、旗が立っているますの数
    */
-  def countFlag(p: POS): Int = probe(p).size // うそ
+  def countFlag(p: POS): Int = probe(p).count(isFlag(_))
   
   /**
    * 指定された位置が未知の状態ならtrue
