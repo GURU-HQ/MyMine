@@ -1,3 +1,5 @@
+import AssemblyKeys._ 
+
 name := "MyMine"
 
 version := "0.0.1-SNAPSHOT"
@@ -33,3 +35,7 @@ javacOptions ++= Seq("-source", "1.6", "-target", "1.6")
 scalacOptions += "-target:jvm-1.6"
 
 testOptions in Test += Tests.Argument("-oD")
+
+assemblySettings
+
+jarName in assembly := "MyMine.jar"
