@@ -7,8 +7,8 @@ import Util._
 /**
  * 盤面情報を持つ基底クラス
  */
-trait BordBase extends MyRange {
-  val bord: Array[Array[Status]]
+trait BoardBase extends MyRange {
+  val board: Array[Array[Status]]
   val width: Int
   val height: Int
 }
@@ -17,7 +17,7 @@ trait BordBase extends MyRange {
  * 神用Trait 
  * (下僕の民はこれを使えない)
  */
-trait Manip extends Bord {
+trait Manip extends Board {
   val rnd = new Random
   
   /**
@@ -54,14 +54,14 @@ trait Manip extends Bord {
 /**
  * 下僕の民が使うクラス
  */
-class Bord(val width: Int, val height: Int)  extends BordBase with Logging {
+class Board(val width: Int, val height: Int)  extends BoardBase with Logging {
   
-  val bord = Array.fill(width, height)(Status.EMPTY)
+  val board = Array.fill(width, height)(Status.EMPTY)
   
   /**
    * ボードの全ますに関数を適用し List[List[?]]として返す
    */
-  def bordAll[A](f:(Int, Int) => A): IndexedSeq[IndexedSeq[A]] = {
+  def boardAll[A](f:(Int, Int) => A): IndexedSeq[IndexedSeq[A]] = {
     (0 to height - 1).map(y => 
       (0 to width -1).map(x =>
     	f(x, y)
@@ -72,24 +72,24 @@ class Bord(val width: Int, val height: Int)  extends BordBase with Logging {
   /**
    * ボードの全ますを List[List[?]]として返す
    */
-  def bordAll(): IndexedSeq[IndexedSeq[POS]] = bordAll((x, y) => (x, y))
+  def boardAll(): IndexedSeq[IndexedSeq[POS]] = boardAll((x, y) => (x, y))
 
   /**
    * 指定された座標が爆弾であることを調べる
    */
-  def isBomb(p: POS): Boolean = isValidPos(p) && bord(p) == Status.BOMB
+  def isBomb(p: POS): Boolean = isValidPos(p) && board(p) == Status.BOMB
   
   /**
    * 空白のますの一覧を返す
    */
-  def spaceList() = bordAll().flatten.filter(tp => !isBomb(tp))
+  def spaceList() = boardAll().flatten.filter(tp => !isBomb(tp))
   
   /**
    * 爆弾を置く
    */
   def put(pos: POS): Unit = {
     assert(!isBomb(pos), "ここはイカン")
-    bord(pos) = Status.BOMB
+    board(pos) = Status.BOMB
   }
   
   /**

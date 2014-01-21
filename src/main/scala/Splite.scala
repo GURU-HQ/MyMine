@@ -7,9 +7,9 @@ import com.typesafe.scalalogging.slf4j.Logging
  * ユーザーから見た盤面を保持する
  * （チームで共有すべき状態）
  */
-class Splite(val bord: Bord) extends Model with MyRange with Logging {
-  val width = bord.width
-  val height = bord.height
+class Splite(val board: Board) extends Model with MyRange with Logging {
+  val width = board.width
+  val height = board.height
   
   val mask = Array.fill(width, height)(Status.UNKNOWN)
   
@@ -22,13 +22,13 @@ class Splite(val bord: Bord) extends Model with MyRange with Logging {
    * この辺りから Actorベースにしていく
    */
   override def open(p: POS): Boolean = {
-    if (bord.isBomb(p)) {
+    if (board.isBomb(p)) {
       logger.error("BOMB")
       false
     } else if (isUnknown(p)) {
       paint(p)
       true
-    } else if (mask(p).is(countFlag(p))) {
+    } else if (mask(p) == Status(countFlag(p))) {
       probe(p).filter(isUnknown(_)).foreach(paint(_))
       true
     } else {
@@ -41,7 +41,7 @@ class Splite(val bord: Bord) extends Model with MyRange with Logging {
    * 旗を立てる
    */
   override def flag(p: POS): Boolean = {
-    if (!bord.isBomb(p)) {
+    if (!board.isBomb(p)) {
       logger.error("Not BOMB")
       false
     } else {
@@ -78,20 +78,19 @@ class Splite(val bord: Bord) extends Model with MyRange with Logging {
   /**
    * 指定された位置のマスを開きmaskを更新
    */
-  private def update(p: POS) = put(p, new Status(bord.countAroundBomb(p)))    
+  private def update(p: POS) = put(p, new Status(board.countAroundBomb(p)))    
   
   /**
    * 指定された位置から連続して開く
    */
   def paint(p: POS): Boolean = {
-    assert(!bord.isBomb(p), "コードから爆弾が開かれた")
+    assert(!board.isBomb(p), "コードから爆弾が開かれた")
     
-    if (bord.countAroundBomb(p) > 0) {
+    if (board.countAroundBomb(p) > 0) {
       update(p)
       true
     } else {
       update(p)
-//      probe(p).filter(isUnknown(_)).foreach(paint(_))
       probe(p).filter(isUnknown(_)).foreach(paint(_))
       true
     }
